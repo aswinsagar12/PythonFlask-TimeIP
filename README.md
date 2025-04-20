@@ -1,61 +1,58 @@
-# ServerIP - IP Geolocation as a Serverless Containerized Microservice
+# 🌐 ServerIP - IP Geolocation as a Serverless Containerized Microservice
 
 ## 🚀 Overview
-**ServerIP** is a fully containerized, serverless IP Geolocation microservice deployed on **AWS Lambda** using **Docker** and provisioned via **Terraform**. It resolves the geographical and network information of any given IP address, making it ideal for analytics, logging, and security audit pipelines.
 
-This project demonstrates complete DevOps lifecycle implementation using:
-- Infrastructure as Code with **Terraform**
-- Containerization using **Docker**
-- Deployment via **AWS Lambda** (with ECR-hosted image)
-- Automation-ready and cloud-agnostic design
+**ServerIP** is a fully containerized, serverless IP Geolocation microservice deployed on **AWS Lambda** using **Docker** and provisioned via **Terraform**.
 
----
+It fetches geographical and network metadata of any public IP address — ideal for analytics, logging, and security auditing pipelines.
 
 ---
 
 ## 🧰 Tech Stack
 
-| Layer              | Tools/Services Used |
-|-------------------|---------------------|
-| Infrastructure     | Terraform, AWS ECR, AWS Lambda |
-| Containerization   | Docker, AWS CLI |
-| Runtime            | public.ecr.aws/lambda/python:3.11 |
-| API Integration    | ipapi.co or ipinfo.io |
-| CI/CD (Optional)   | GitHub Actions / Jenkins (if applicable) |
+| Layer             | Tools / Services Used                          |
+|------------------|-------------------------------------------------|
+| Infrastructure    | Terraform, AWS Lambda, AWS ECR                 |
+| Containerization  | Docker, AWS CLI                                |
+| Runtime           | `public.ecr.aws/lambda/python:3.11`            |
+| API Integration   | `ipapi.co` or `ipinfo.io`                      |
+| CI/CD (Optional)  | GitHub Actions / Jenkins (if applicable)       |
 
 ---
 
 ## 🔑 Key Features
 
-- 🔎 **Public IP Metadata Lookup**: Returns ISP, region, location, and country for any IP address
-- 🐳 **Dockerized Microservice**: Container runs independently and is Lambda-ready
-- ⚙️ **Terraform-Powered Infra**: Automates provisioning of Lambda, IAM role, and ECR repo
-- ☁️ **AWS ECR + Lambda Deployment**: Image hosted and pulled via AWS Lambda seamlessly
-- 🛡️ **Minimal Dependencies**: Built on `public.ecr.aws/lambda/python:3.11` for faster cold starts
+- 🔎 **IP Metadata Lookup**: City, region, country, ISP from any public IP
+- 🐳 **Dockerized Microservice**: Lambda-compatible, standalone container
+- ⚙️ **Terraform Infrastructure**: IAM role, ECR, Lambda — automated setup
+- ☁️ **AWS Lambda Deployment**: Serverless and scalable
+- 🚀 **Lightweight Runtime**: Based on `public.ecr.aws/lambda/python:3.11`
 
 ---
 
 ## 🧱 Architecture & Workflow
 
 ```plaintext
-User/API Client
-     |
-     v
-[API Gateway (optional)]
-     |
-     v
-[Lambda Function (container)]
-     |
-     v
+User / API Client
+      |
+      v
+[API Gateway (Optional)]
+      |
+      v
+[Lambda (Containerized)]
+      |
+      v
 [IP Geolocation API]
+```
 
-## 🧱 Local Development and Testing
 
+## Local Development & Testing
+```
 # Clone the repo
 git clone https://github.com/aswinsagar12/serverip.git
 cd serverip
 
-# Create a virtual environment (optional)
+# (Optional) Create and activate a virtual environment
 python3 -m venv venv && source venv/bin/activate
 
 # Install dependencies
@@ -63,101 +60,105 @@ pip install -r requirements.txt
 
 # Run locally
 python app.py
-
-## Docker Build
-
-# Build image
+```
+## 🐋 Docker Workflow
+```
+# Build the Docker image
 docker build -t serverip .
 
-# Tag image for ECR
+# Tag the image for ECR
 docker tag serverip:latest <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/serverip:latest
 
-# Login to ECR
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
+# Authenticate Docker with ECR
+aws ecr get-login-password --region us-east-1 | \
+docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
 
-# Push image
+# Push the Docker image to ECR
 docker push <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/serverip:latest
+```
 
+## 🏗️ Terraform Infrastructure Setup
+✅ Prerequisites
+AWS CLI configured (aws configure)
 
-🏗️ Terraform Infrastructure Setup
-Prerequisites
-AWS CLI configured
-
-IAM user with permissions for Lambda, ECR, IAM
+IAM User with permissions for Lambda, ECR, IAM
 
 Terraform installed (>=1.5.x)
 
-Structure
-css
-Copy
-Edit
+🗂️ Directory Structure
+```plaintext
 infra/
-├── main.tf
-├── variables.tf
-├── outputs.tf
-└── ecr.tf
-Usage
-bash
-Copy
-Edit
+├── main.tf         # Lambda, IAM, ECR setup
+├── variables.tf    # Configurable variables
+├── outputs.tf      # Output values post-deployment
+├── ecr.tf          # ECR repo definition
+
+```
+## 🚀 Usage
+
+```
 cd infra
 terraform init
 terraform plan
 terraform apply
-Terraform will:
+```
 
-Create an ECR repo
+## ✅ Terraform Will:
+Create an ECR repository
 
-Create an IAM role for Lambda
+Set up an IAM role with required permissions
 
-Create a Lambda function pointing to the container image
+Deploy a Lambda function using your Docker image
 
-📁 Project Structure
-bash
-Copy
-Edit
+## 📁 Project Structure
+```plaintext
 serverip/
-├── app.py                    # Lambda-compatible Python handler
-├── Dockerfile                # Docker config with python:3.13-slim
-├── requirements.txt          # Dependencies
-├── infra/                    # Terraform infrastructure setup
+├── app.py                  # Python Lambda handler
+├── Dockerfile              # Docker config with python:3.11 runtime
+├── requirements.txt        # Python dependencies
+├── infra/                  # Terraform IaC
 │   ├── main.tf
-│   └── ...
-⚙️ Deployment Verification
-Go to AWS Lambda > Functions > [YourFunctionName]
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── ecr.tf
+
+```
+
+## ✅ Deployment Verification
+Open AWS Console → Lambda
+
+Choose your deployed function
 
 Click Test
 
-Use the following event:
+Use the following JSON as input:
 
-json
-Copy
-Edit
-{
-  "ip": "8.8.8.8"
-}
-Confirm the JSON response includes city, region, country, ISP.
 
-🧑‍💻 Developer Notes
-The Lambda handler is defined in app.lambda_handler
+## ✅ Confirm the response includes fields like city, region, country, and org (ISP)
+## 🧑‍💻 Developer Notes
+Lambda handler function is app.lambda_handler
 
-Terraform uses hardcoded regions and can be extended via variables
+Terraform region and names are hardcoded — can be parameterized
 
-Future scope includes adding API Gateway, CI/CD GitHub Actions, and monitoring with CloudWatch
+Ideal for CI/CD integrations using GitHub Actions
 
-🧩 Future Enhancements
-Add CloudWatch alarms for invocation errors
+Extendable via API Gateway & monitoring integrations
 
-Implement GitHub Actions CI for image build & push
+🔮 Future Enhancements
+📈 CloudWatch alarms for Lambda errors
 
-Add support for private IP rejection
+🛠️ GitHub Actions pipeline for Docker build + ECR push
 
-API Gateway with authentication layer
+🚫 Reject private/internal IPs from being queried
 
-🤝 Contact & Collaboration
-Feel free to fork, clone, or contribute.
+🔐 Secure API Gateway layer with auth
+
+## 🤝 Contact & Collaboration
+Contributions and feedback are welcome! Feel free to fork and submit a PR.
 
 📧 Email: aswinsagar12@gmail.com
-🔗 LinkedIn: https://linkedin.com/in/aswinsagar12
-💼 Portfolio: https://aswinsagar.dev (if available)
+
+🔗 LinkedIn: linkedin.com/in/aswinsagar12
+
+🌐 Portfolio: aswinsagar.dev (if available)
 
