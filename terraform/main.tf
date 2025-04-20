@@ -1,3 +1,5 @@
+// Creating ECR for docker image
+
 resource "aws_ecr_repository" "particle_ecr" {
   name                 = "serverip"
   image_tag_mutability = "MUTABLE"
@@ -11,6 +13,7 @@ resource "aws_ecr_repository" "particle_ecr" {
     Name = "particle_ecr"
     Env  = "dev"
   }
+
 }
 
 # Lambda Execution Role
@@ -92,7 +95,7 @@ resource "aws_lambda_function" "server_ip_lambda" {
   memory_size   = 512
 
   vpc_config {
-    subnet_ids         = [
+    subnet_ids = [
       aws_subnet.private_subnet1.id,
       aws_subnet.private_subnet2.id
     ]
@@ -102,9 +105,9 @@ resource "aws_lambda_function" "server_ip_lambda" {
   depends_on = [
     aws_iam_role_policy.lambda_vpc_policy
   ]
-  lifecycle {
-    ignore_changes = [image_uri]
-  }
+  # lifecycle {
+  #   ignore_changes = [image_uri]
+  # }
 }
 
 # REST API Gateway
