@@ -1,166 +1,163 @@
-# 🌐 ServerIP - AWS Lambda Microservice
+# 🌐 ServerIP - IP Geolocation as a Serverless Containerized Microservice
 
-## 📋 Overview
+## 🚀 Overview
 
-**ServerIP** is a serverless microservice that displays the client's IP address and current timestamp. Built with Python Flask, containerized with Docker, and deployed on AWS Lambda using Terraform for infrastructure provisioning.
+**ServerIP** is a fully containerized, serverless IP Geolocation microservice deployed on **AWS Lambda** using **Docker** and provisioned via **Terraform**.
 
-![ServerIP Application](./screenshots/serverip-app.png)
+It fetches geographical and network metadata of any public IP address — ideal for analytics, logging, and security auditing pipelines.
 
-## 🧰 Technology Stack
+---
 
-| Component | Technology/Tools |
-|-----------|------------------|
-| Backend | Python 3.8, Flask |
-| Containerization | Docker |
-| Cloud Provider | AWS |
-| Services | Lambda, API Gateway, ECR |
-| Infrastructure as Code | Terraform |
-| Environment | Serverless |
+## 🧰 Tech Stack
 
-## 🏗️ Architecture
+| Layer             | Tools / Services Used                          |
+|------------------|-------------------------------------------------|
+| Infrastructure    | Terraform, AWS Lambda, AWS ECR                 |
+| Containerization  | Docker, AWS CLI                                |
+| Runtime           | `public.ecr.aws/lambda/python:3.11`            |
+| API Integration   | `ipapi.co` or `ipinfo.io`                      |
+| CI/CD (Optional)  | GitHub Actions / Jenkins (if applicable)       |
 
-```
-Client Request
-     ↓
-API Gateway
-     ↓
-AWS Lambda (Containerized Flask App)
-     ↓
-Response (IP Address & Timestamp)
-```
+---
 
-## 📁 Project Structure
+## 🔑 Key Features
 
-```
-serverip/
-├── app/                       # Application code
-│   ├── app.py                 # Flask application & Lambda handler
-│   ├── Dockerfile             # Container configuration
-│   └── requirements.txt       # Python dependencies
-├── terraform/                 # Infrastructure as code
-│   ├── main.tf                # Main Terraform configuration
-│   ├── variables.tf           # Variable definitions
-│   ├── outputs.tf             # Output definitions
-│   └── backend.tf             # S3 backend configuration
-└── screenshots/               # Application screenshots
-    └── serverip-app.png       # UI screenshot
-```
+- 🔎 **IP Metadata Lookup**: City, region, country, ISP from any public IP
+- 🐳 **Dockerized Microservice**: Lambda-compatible, standalone container
+- ⚙️ **Terraform Infrastructure**: IAM role, ECR, Lambda — automated setup
+- ☁️ **AWS Lambda Deployment**: Serverless and scalable
+- 🚀 **Lightweight Runtime**: Based on `public.ecr.aws/lambda/python:3.11`
 
-## 🚀 Deployment Guide
+---
 
-### Prerequisites
+## 🧱 Architecture & Workflow
 
-- AWS CLI installed and configured
-- Docker installed
-- Terraform installed (v1.5.x or later)
-- S3 bucket for Terraform state (optional)
-
-### Step 1: Application Deployment
-
-Navigate to the application directory and build the Docker image:
-
-```bash
-cd app
-
-# Build Docker image
-docker build --provenance=false -t serverip:v1 .
-
-# Tag image for ECR
-docker tag serverip:v1 <aws-id>.dkr.ecr.<region>.amazonaws.com/serverip:v1
-
-# Login to ECR
-aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws-id>.dkr.ecr.<region>.amazonaws.com
-
-# Push image to ECR
-docker push <aws-id>.dkr.ecr.<region>.amazonaws.com/serverip:v1
+```plaintext
+User / API Client
+      |
+      v
+[API Gateway (Optional)]
+      |
+      v
+[Lambda (Containerized)]
+      |
+      v
+[IP Geolocation API]
 ```
 
-### Step 2: Infrastructure Provisioning
 
-Navigate to the Terraform directory and initialize:
-
-```bash
-cd ../terraform
-
-# Configure AWS credentials (if not already done)
-aws configure
-
-# Initialize Terraform
-terraform init
-
-# Review the execution plan
-terraform plan
-
-# Apply the infrastructure
-terraform apply
+## Local Development & Testing
 ```
+# Clone the repo
+git clone https://github.com/aswinsagar12/serverip.git
+cd serverip
 
-After successful deployment, the API Gateway URL will be displayed in the terminal.
-
-## 🔍 Accessing the Application
-
-1. Once deployment is complete, retrieve the API URL from Terraform outputs:
-   ```bash
-   terraform output
-   ```
-
-2. Open the URL in your web browser to see your IP address and the current timestamp.
-
-## 📊 Monitoring and Logging
-
-- Lambda logs are available in CloudWatch Logs
-- Monitor Lambda function performance in the AWS Lambda console
-- API Gateway metrics are available in the API Gateway console
-
-## 🔧 Troubleshooting
-
-| Issue | Resolution |
-|-------|------------|
-| Docker build failure | Ensure Docker daemon is running and you have proper permissions |
-| ECR push failure | Verify AWS credentials and ECR repository existence |
-| Lambda deployment failure | Check image compatibility with Lambda and IAM permissions |
-| API Gateway errors | Verify Lambda function works correctly and API Gateway is properly configured |
-
-## 🧪 Local Development
-
-You can run the application locally for development:
-
-```bash
-# Navigate to app directory
-cd app
+# (Optional) Create and activate a virtual environment
+python3 -m venv venv && source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Run Flask app locally
+# Run locally
 python app.py
 ```
+## 🐋 Docker Workflow
+```
+# Build the Docker image
+docker build -t serverip .
 
-The application will be available at http://localhost:80
+# Tag the image for ECR
+docker tag serverip:latest <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/serverip:latest
 
-## 🛠️ CI/CD Integration (Optional)
+# Authenticate Docker with ECR
+aws ecr get-login-password --region us-east-1 | \
+docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
 
-This project can be easily integrated with CI/CD pipelines using GitHub Actions or Jenkins:
+# Push the Docker image to ECR
+docker push <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/serverip:latest
+```
 
-1. Automate Docker build and push to ECR
-2. Run Terraform validation and deployment
-3. Implement automated testing
+## 🏗️ Terraform Infrastructure Setup
+✅ Prerequisites
+AWS CLI configured (aws configure)
 
-## 📚 Additional Resources
+IAM User with permissions for Lambda, ECR, IAM
 
-- [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/)
-- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
-- [Flask Documentation](https://flask.palletsprojects.com/)
-- [Docker Documentation](https://docs.docker.com/)
+Terraform installed (>=1.5.x)
 
-## 📝 License
+🗂️ Directory Structure
+```plaintext
+infra/
+├── main.tf         # Lambda, IAM, ECR setup
+├── variables.tf    # Configurable variables
+├── outputs.tf      # Output values post-deployment
+├── ecr.tf          # ECR repo definition
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+```
+## 🚀 Usage
 
-## 👤 Contact
+```
+cd infra
+terraform init
+terraform plan
+terraform apply
+```
 
-For questions or contributions, please contact:
+## ✅ Terraform Will:
+Create an ECR repository
 
-- **Developer**: Aswin Sagar
-- **Email**: aswinsagar12@gmail.com
-- **LinkedIn**: [linkedin.com/in/aswinsagar12](https://linkedin.com/in/aswinsagar12)
+Set up an IAM role with required permissions
+
+Deploy a Lambda function using your Docker image
+
+## 📁 Project Structure
+```plaintext
+serverip/
+├── app.py                  # Python Lambda handler
+├── Dockerfile              # Docker config with python:3.11 runtime
+├── requirements.txt        # Python dependencies
+├── infra/                  # Terraform IaC
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── ecr.tf
+
+```
+
+## ✅ Deployment Verification
+Open AWS Console → Lambda
+
+Choose your deployed function
+
+Click Test
+
+Use the following JSON as input:
+
+
+## ✅ Confirm the response includes fields like city, region, country, and org (ISP)
+## 🧑‍💻 Developer Notes
+Lambda handler function is app.lambda_handler
+
+Terraform region and names are hardcoded — can be parameterized
+
+Ideal for CI/CD integrations using GitHub Actions
+
+Extendable via API Gateway & monitoring integrations
+
+🔮 Future Enhancements
+📈 CloudWatch alarms for Lambda errors
+
+🛠️ GitHub Actions pipeline for Docker build + ECR push
+
+🚫 Reject private/internal IPs from being queried
+
+🔐 Secure API Gateway layer with auth
+
+## 🤝 Contact & Collaboration
+Contributions and feedback are welcome! Feel free to fork and submit a PR.
+
+📧 Email: aswinsagar12@gmail.com
+
+🔗 LinkedIn: linkedin.com/in/aswinsagar12
+
+🌐 Portfolio: [aswinsagar](https://aswinsagar12.github.io/AswinSagar-Portfolio/)
