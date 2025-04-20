@@ -1,0 +1,54 @@
+# ======================
+# General
+# ======================
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# ======================
+# Python-specific
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+.venv/
+env/
+venv/
+pip-log.txt
+*.egg
+*.egg-info/
+dist/
+build/
+*.sqlite3
+
+# ======================
+# Terraform-specific
+# ======================
+# Ignore Terraform local state files
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/.terraform.lock.hcl
+
+# If you want to ignore any `.tfvars` files that store sensitive data
+terraform/*.tfvars
+
+# ======================
+# VS Code / IDEs
+# ======================
+.vscode/
+.idea/
+*.code-workspace
+
+# ======================
+# Git-related
+# ======================
+*.orig
+*.rej
+
+# Optional: Mac/Linux system files
+*.~*

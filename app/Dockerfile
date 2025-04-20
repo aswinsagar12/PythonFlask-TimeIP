@@ -1,5 +1,5 @@
 #Defined in the base image
-FROM python:3.13-slim
+FROM public.ecr.aws/lambda/python:3.11
 # Set the working directory in the container
 WORKDIR /app
 # Copy the current directory contents into the container at /app
